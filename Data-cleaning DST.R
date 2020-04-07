@@ -56,6 +56,10 @@ SCFiles <- list.files(path = pathsc, pattern = patternsc)
 SCFilesPath <- paste(pathsc, SCFiles, sep = "")
 SwitchCost <- row.names(c("tom"))
 SwitchCost <- as.data.frame(SwitchCost)
+RepTime <- row.names(c("tom"))
+RepTime <- as.data.frame(RepTime)
+SwitchTime <- row.names(c("tom"))
+SwitchTime <- as.data.frame(SwitchTime)
 for (i in SCFilesPath) {
   scmatfil <- readMat(i)
   scmatdata <- scmatfil$data
@@ -82,7 +86,29 @@ for (i in SCFilesPath) {
   SCSwitchRT <- median(SCTargetRT[SCAllTrials$Repeat == FALSE])
   SwitchCostParticipant <- (SCSwitchRT - SCRepeatRT)
   SwitchCost <- rbind(SwitchCost, SwitchCostParticipant)
+  RepTime <- rbind(RepTime, SCRepeatRT)
+  SwitchTime <- rbind(SwitchTime, SCSwitchRT)
+  Costs <- cbind(SwitchCost, RepTime, SwitchTime)
+  costname <- c("SwitchCost", "RepeatTime", "SwitchTime")
+  colnames(Costs) <- costname
 }
+IDTemp <- list.files(path = pathsc, pattern = patternsc)
+IDT <- sapply(strsplit(IDTemp, split='.mat', fixed=TRUE), function(x) (x[1]))
+IDSC <- sapply(strsplit(IDT, split='Cost_', fixed=TRUE), function(x) (x[2]))
+row.names(Costs) <- IDSC
 
-write.csv(ParticipantSummary, file = "Data/DSTsummary.csv")
+#Some ID's were typed in wrong (2), and thus the ID as collected in the Matlab file is not correct in two instances, the filenames however are correct, so extracting from those
+ParticipantSummary <- ParticipantSummary[-1]
+IDTemp <- list.files(path = path, pattern = pattern)
+IDT <- sapply(strsplit(IDTemp, split='_1.mat', fixed=TRUE), function(x) (x[1]))
+IDFixed <- sapply(strsplit(IDT, split='data_s', fixed=TRUE), function(x) (x[2]))
+IDFixed <- sapply(strsplit(IDFixed, split="_", fixed=TRUE), function(x) (x[1]))
+row.names(ParticipantSummary) <- IDFixed
+
+CompleteDST <- merge(ParticipantSummary, Costs, all = TRUE, by = 'row.names')
+CompleteDSTID <- CompleteDST[1]
+CompleteDST <- CompleteDST[-1]
+row.names(CompleteDST) <- CompleteDSTID$Row.names
+
+write.csv(CompleteDST, file = "Data/DSTsummary.csv")
 
