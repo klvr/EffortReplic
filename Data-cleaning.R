@@ -181,6 +181,10 @@ colnames(rqnh)[7] <- "RQnHSum"
 
 # Make and export a csv-file
 summary <- cbind(rest["ID"], rq, rqh["RQHSum"], rqnh["RQnHSum"], rest["Duration"], rest["Lang"], nfc["NFCSum"], rqdebrief[1], dstntlx, rqntlx)
+RQID <- summary[1]
+summary <- summary[-1]
+rownames(summary) <- RQID$ID
+
 write.csv(summary, file = "Data/summary.csv")
 
 
