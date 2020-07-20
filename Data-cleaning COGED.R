@@ -20,6 +20,9 @@ COGED <- as.numeric()
 dpblock <- c("block2", "block3", "block4")
 #IP blocks
 ipblock <- c("block5_12", "block5_13", "block5_14")
+#IP levels
+offering <- c(0.01,0.03,0.06,0.12,0.25,0.5,1,1.5,1.75,1.88,1.94, 1.96, 1.99)
+
 
 #D-prime
 subj <- unique(data$subject)
@@ -56,13 +59,25 @@ for (i in subj) {
   if (subjdp4hitrate == 0) { subjdp4hitrate <- (1/(2*80)) }
   if (subjdp4FArate == 1) { subjdp4FArate <- (1-(1/(2*80))) }
   subjdp4 <- qnorm(subjdp4hitrate) - qnorm(subjdp4FArate)
-  COGED <- rbind(COGED, cbind(i, subjdp2, subjdp3, subjdp4, subjdp2hitrate, subjdp2FArate,subjdp3hitrate, subjdp3FArate,subjdp4hitrate, subjdp4FArate))
+  
+  IP12 <- subjdata[subjdata$blockcode == "block5_12Summary",]
+  IP13 <- subjdata[subjdata$blockcode == "block5_13Summary",]
+  IP14 <- subjdata[subjdata$blockcode == "block5_14Summary",]
+  IP12 <- c(sum(IP12$values.N == 2) - sum(IP12$values.N == 1))
+  IP13 <- c(sum(IP13$values.N == 3) - sum(IP13$values.N == 1))
+  IP14 <- c(sum(IP14$values.N == 4) - sum(IP14$values.N == 1))
+  
+  IP12 <- offering[(7+IP12)]
+  IP13 <- offering[(7+IP13)]
+  IP14 <- offering[(7+IP14)]
+  
+  COGED <- rbind(COGED, cbind(i, subjdp2, subjdp3, subjdp4, subjdp2hitrate, subjdp2FArate,subjdp3hitrate, subjdp3FArate,subjdp4hitrate, subjdp4FArate, IP12, IP13, IP14))
 }
-
-#IP
-
 
 rownames(COGED) <- COGED[,1]
 COGED <- COGED[,-1]
-names <- c("DP2", "DP3", "DP4", "HR2", "FA2", "HR3", "FA3", "HR4", "FA4")
+names <- c("DP2", "DP3", "DP4", "HR2", "FA2", "HR3", "FA3", "HR4", "FA4", "IP12", "IP13", "IP14")
 colnames(COGED) <- paste("Coged", names, sep="")
+
+write.csv(COGED, file = paste(getwd(), "/Data/", "COGED.csv", sep =""))
+
