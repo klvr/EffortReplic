@@ -24,7 +24,7 @@ ipblock <- c("block5_12", "block5_13", "block5_14")
 offering <- c(0.01,0.03,0.06,0.12,0.25,0.5,1,1.5,1.75,1.88,1.94, 1.96, 1.99)
 
 
-#D-prime
+#Individual extractions
 subj <- unique(data$subject)
 for (i in subj) {
   subjdata <- (data$subject == i)
